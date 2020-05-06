@@ -1,0 +1,122 @@
+body {
+	background: #EFF0EF;
+	width: 100%;
+}
+
+.left-size {
+	height: 100%;
+	width: 200px;
+	border: 1px solid #cfcfcf;
+	background: #E0E0E0;
+	text-align: center;
+}
+
+#body-panel {
+	height: 100%;
+	width: 900px;
+	border: 1px solid #cfcfcf;margin-left: 5px;
+	text-align: center;
+}
+
+.left-side-menu {
+	user-select:none;
+	outline:none;
+	width: 90%;
+	height: 50px;
+	line-height: 50px;
+	margin-top: 5px;
+	border: 1px solid #8fefb0;
+	display: inline-block;
+	background: #9fffC0;
+	cursor: pointer;
+}
+
+.left-side-menu:hover {
+	border-left: 1px solid #6fdf10;
+	border-bottom: 1px solid #6fdf10;
+}
+
+.left-side-menu:active {
+	background: #Affff0;
+}
+
+
+.okbutton {
+	height: 40px;
+	width: 100px;
+	background-image: url(/images/ok2.png);
+	cursor: pointer;
+	line-height: 40px;
+	border-radius: 3px;
+	font-weight: normal;
+	text-align: center;
+}
+
+.okbutton:hover {
+	background-image: url(/images/ok2.hover.png);
+}
+
+.okbutton:active {
+	background-image: url(/images/ok2.active.png);
+}
+
+
+.cancelbutton {
+	height: 40px;
+	width: 100px;
+	background-image: url(/images/cancel2.png);
+	cursor: pointer;
+	line-height: 40px;
+	border-radius: 3px;
+	font-weight: normal;
+	text-align: center;
+}
+
+.cancelbutton:hover {
+	background-image: url(/images/cancel2.hover.png);
+}
+
+.cancelbutton:active {
+	background-image: url(/images/cancel2.active.png);
+}
+
+/* default input buttons */
+input[type=text] {
+	background: #fcfcfc;
+	border: 1px solid grey;
+	border-radius: 3px;
+	width: 180px;
+	height: 36px;
+	padding: 3px;
+}
+
+input[type=text].read-only {
+	background: #dcdcdc;
+}
+
+input[type=text].bad-input {
+	background: #fAfA80;
+}
+
+.menu-descripntion {
+	display: block;
+	height: 30px;
+	line-height: 30px;
+}
+
+.edit-box {
+	float:left;
+	height: 15px;
+	width: 15px;
+	background: url(/images/edit.png) no-repeat;
+	margin-top: 7px;
+	margin-left: 5px;
+}
+
+.edit-box:hover {
+	background: url(/images/edit.hover.png);
+}
+
+.edit-box:active {
+	background: url(/images/edit.active.png);
+}

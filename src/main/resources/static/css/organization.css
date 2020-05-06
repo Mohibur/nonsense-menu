@@ -1,0 +1,165 @@
+.display-none {
+	display: none;
+}
+.organization-list, .organization-default, .organization-default-last-new, .organization-default-deleted {
+	user-select:none;
+	outline:none;
+	width: 190px;
+	height: 30px;
+	line-height: 30px;
+	margin: 5px;
+	border: 1px solid #8fefb0;
+	display: inline-block;
+	background: #9fffC050;
+	cursor: pointer;
+	border-radius: 2px;
+}
+
+.organization-default-last-new {
+	background: #c09fff50;
+} 
+.organization-default-deleted {
+	color: #88333350;
+	text-decoration: line-through;
+	background: #ffc09f50;
+}
+
+.organization-default {
+	background: #9fe0C020;
+}
+
+.organization-default:hover {
+	background: #9fe0C080;
+}
+
+.organization-default:active {
+	background: #3ff0C080;
+}
+
+div.org-table {
+	width: 662px;
+	padding: 10px;
+	background: #a00b0b0b;
+	display: inline-block;
+}
+
+div.org-tr {
+	border-bottom: 1px solid #cccccc9a;  
+	width: 540px;
+	font-weight: normal;
+}
+
+div.org-td { 
+	width: 270px;
+	float: left;
+	line-height: 40px;
+	font-weight: normal;
+	text-align: right;
+}
+
+.add-edit-panel  {
+	float: left;
+	width: 600px;
+	margin: 5px;
+	border: 1px solid #88888888;
+	background: #FF000005;
+	height : 98%
+}
+
+.current-list-panel {
+	float: left;
+	height: 98%;
+	width: 200px;
+	margin: 5px;
+	border: 1px solid #88888888;
+}
+
+div.button-grandpa {
+	padding: 4px;
+	display: block-inline;
+	width: 100%;
+}
+
+div.button-grandpa div.button-child {
+	float:left;
+}
+
+
+div.button-grand-child {	
+	display: grid;
+	width: 100%;
+	justify-content: center;
+}
+
+
+/*////////////////////Menu Control Part/////////////////////*/
+
+.addMenuWindow {
+	width: 100%;
+}
+
+.menu-th {
+	width: 50%;
+	font-weight: bold;
+	font-size: normal;
+}
+
+.menu-td {
+	background: #e0deba;
+}
+
+.menu-window-title {
+	background: #afbbcc;
+}
+
+.menu-window-title-desc {
+	background: #afbbcc88;
+}
+
+.menu-window-title, .menu-window-title-desc {
+	width: 33.33%;
+	height: 50px;
+	line-height: 50px;
+	text-align: center;
+	font-size: small;
+	user-select:none;
+	outline:none;
+}
+
+.menu-holder {
+	background: #afffcc;
+	border-bottom: 1px solid #33333333;
+}
+.menu-holder-selected {
+	background: #af8fcc88;
+}
+
+.menu-holder:hover {
+	background: #afffcc88;
+}
+
+.common-child {
+	height: 50px;
+	line-height: 50px;
+	margin-top: 4px;
+	width: 190px;
+	text-align: left;
+	padding-left: 4px;
+	cursor: pointer;
+	overflow: hidden;
+}
+
+.close-menu {
+	height: 50px;
+	width: 10px;
+	float: left;
+	margin-left: 10px;
+	background:  url(/images/remove.png) no-repeat center center;
+	cursor: pointer;
+}
+
+.close-menu:hover {
+	background:  url(/images/remove.hover.png) no-repeat center center;
+}
+
+
