@@ -1,9 +1,16 @@
-function LoadImages (imageName) {
-	new Image("/images/" + imageName + ".png");
-	new Image("/images/" + imageName + ".active.png");
-	new Image("/images/" + imageName + ".hover.png");
-} 
-LoadImages("ok2");
-LoadImages("cancel2");
-LoadImages("remove");
-LoadImages("edit");
+function LoadImage(imageName) {
+	var tmObj = new Image();
+	tmObj.src = imageName;
+	delete tmObj;
+}
+
+function LoadImagesSet (imageName) {
+	LoadImage("/images/" + imageName + ".png")
+	LoadImage("/images/" + imageName + ".active.png");
+	LoadImage("/images/" + imageName + ".hover.png");
+}
+
+LoadImagesSet("ok2");
+LoadImagesSet("cancel2");
+LoadImagesSet("remove");
+LoadImagesSet("edit");

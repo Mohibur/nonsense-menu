@@ -102,7 +102,13 @@ input[type=text].bad-input {
 	display: block;
 	height: 30px;
 	line-height: 30px;
+	font-size: xx-small;
+	overflow: hidden;
+	
 }
+
+
+
 
 .edit-box {
 	float:left;
@@ -111,6 +117,7 @@ input[type=text].bad-input {
 	background: url(/images/edit.png) no-repeat;
 	margin-top: 7px;
 	margin-left: 5px;
+	cursor: pointer;
 }
 
 .edit-box:hover {
@@ -119,4 +126,55 @@ input[type=text].bad-input {
 
 .edit-box:active {
 	background: url(/images/edit.active.png);
+}
+
+.floating-text {
+	border-radius: 3px;
+	border: 1px solid #89898930;
+	background: #f9f9f9;
+	padding: 10px;
+	height: 100px;
+	width: 250px;
+}
+
+.floating-text:active {
+	border: 1px solid #89898980;
+}
+
+.floating-text:focus {
+	border: 1px solid #89898980;
+	background: #f9f9f9f9;
+}
+
+
+.close-button {
+	height: 16px;
+	width: 16px;
+	float: right;
+	display: inline;
+	background: url(/images/close.png) no-repeat;
+	margin-top: 12px;
+	margin-right: 5px;
+	cursor: pointer;
+}
+
+.close-button:hover {
+	background: url(/images/close.active.png) no-repeat;
+}
+
+.close-button:active {
+	
+	background: url(/images/close.hover.png) no-repeat;
+}
+
+.popup-title {
+	user-select: none;
+	height: 40px;
+	width: 239px;
+	background: rgb(59, 87, 86) none repeat scroll 0% 0%;
+	line-height: 40px;
+	padding-left: 10px;
+	color: #F3F3F0;
+	border-top-left-radius: 3px;
+	border-top-right-radius: 3px;
 }

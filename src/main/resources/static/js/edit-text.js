@@ -6,7 +6,7 @@ class InputWithEditBox {
 	editButton;
 	constructor(innerText, div) {
 		this.innerText = innerText;
-		this.parentDiv = mm.getDivObject(div);
+		this.parentDiv = mm.getDivObject(div, true);
 		$(this.parentDiv).addClass("menu-descripntion");
 		$(this.parentDiv).html("");
 		this.textWindow = document.createElement("div");
@@ -36,6 +36,38 @@ class InputWithEditBox {
 			throw "Something went wrong";
 		}
 		this.editButton.onclick = function (thisobj) {
+			function makeTextHolderDiv(blockDiv) {
+				var div = document.createElement("div");
+				var h = 150;
+				var w = 250;
+				$(div).css("position", "absolute");
+				$(div).css("height", h + "px");
+				$(div).css("width", w + "px");
+				$(div).css("left", (($(window).width() - w)/2) + "px");
+				$(div).css("top", (($(window).height() - h)/4) + "px");
+				blockDiv.appendChild(div);
+				return div;
+			}
+			function makeTitleForHolderDiv(textHolderDiv, title, blockDiv) {
+				var div = document.createElement("div");
+				$(div).addClass("popup-title");
+				var spleft = document.createElement("div");
+				$(spleft).css("float", "left");
+				$(spleft).css("display", "inline");
+				$(spleft).text(title);
+				var spright = document.createElement("div");
+				$(spright).addClass("close-button");
+				spright.onclick = function() {
+					document.body.removeChild(blockDiv);
+				}
+				
+				div.appendChild(spleft);
+				div.appendChild(spright);
+				div.appendChild(mm.clearBothDiv());
+				
+				textHolderDiv.appendChild(div);
+				return div;
+			}
 			return function() {
 				var blockDiv = document.createElement("div");
 				$(blockDiv).css("position", "absolute");
@@ -45,15 +77,11 @@ class InputWithEditBox {
 				$(blockDiv).css("width", $( window ).width() + "px");
 				$(blockDiv).css("background", "#acacac40");
 				document.body.appendChild(blockDiv);
+				var textHolderDiv = makeTextHolderDiv(blockDiv);
+				makeTitleForHolderDiv(textHolderDiv, "Edit Text", blockDiv);
 				var textArea = document.createElement("textarea");
-				blockDiv.appendChild(textArea);
-				$(textArea).css("position", "absolute");
-				var h = 100;
-				var w = 250;
-				$(textArea).css("height", h + "px");
-				$(textArea).css("width", w + "px");
-				$(textArea).css("left", (($(window).height() - h)/2) + "px");
-				$(textArea).css("top", (($(window).width() - w)/2) + "px");
+				textHolderDiv.appendChild(textArea);
+				$(textArea).addClass("floating-text");
 				$(textArea).val(thisobj.innerText);
 				textArea.onkeyup = function (thisobj) {
 					return function(e) {
@@ -64,7 +92,7 @@ class InputWithEditBox {
 					    	thisobj.innerText = $(this).val();
 					    	document.body.removeChild(blockDiv);
 					    	thisobj.renderSpan();
-					    	fnc();
+					    	fnc(thisobj.innerText);
 					    	return false;
 					    }
 					}

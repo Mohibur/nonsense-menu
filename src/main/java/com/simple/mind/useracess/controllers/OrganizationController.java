@@ -31,7 +31,7 @@ public class OrganizationController {
 	public ResponseEntity<List<Organization>> getOrganizationList() {
 		List<Organization> listOrg = orgRepo.findAllByDeletedIsNullOrDeletedFalse();
 		for (Organization org : listOrg) {
-			org.setMenuStructures(new ArrayList<MenuStructure>());
+			org.setMenuStructures(new MenuStructure());
 		}
 		return ResponseEntity.ok(listOrg);
 	}

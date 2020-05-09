@@ -15,7 +15,7 @@ class MenuStructure {
 		this.menuName = "";
 		this.menuDesc = "";
 		this.hasAdmin = false;
-		this.parentMenu = null;
+		this.parentObj = null;
 		this.isNew = true;	// null or false is not new
 		this.children = [];
 	}
@@ -280,9 +280,14 @@ function() {
 	////////////////////////////////////////////////////////Play With Menus///////////////////////////////////////////////////////////////
 	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	// play with this now.
-	//var // TODO fix this shit 
-	ms = new Object();
-	ms.motherMenuArray = new Array();
+	//var
+	// this is current Object
+	var ms = new MenuStructure();
+	ms.parentObj = null; // by default
+	msMother = ms;
+	/**
+		this.children = [];
+	 **/
 	// if current Object is null it means
 	ms.curMenuObj = null;
 	ms.currentMenuArray = ms.motherMenuArray;
@@ -377,16 +382,16 @@ function() {
 				menuInputForm.inputBoxes["menu-name"].value = "";
 				menuInputForm.inputBoxes["menu-desc"].value = "";
 				newMenu.hasAdmin = false;
-				newMenu.parentMenu = ms.curMenuObj;
-				newMenu.children = [];
-				ms.currentMenuArray.push(newMenu);
-				renderCurrentList(ms.currentMenuArray.length - 1);
+				newMenu.parentObj = ms;
+				ms.children.push(newMenu);
+				renderCurrentList(newMenu, ms.children.length - 1);
 			}
 		}
 	});
+	var lastMotherSelectedDiv = null;
 	var lastSelectedDiv = null;
-	// add an individual menu to given menu;
-	function cd(data) {
+	// add an individual menu to currentList;
+	function addMenuToCurrentList(data) {
 		var possid = "menu_construct_" + data.obj.menuName
 		var divTop = document.getElementById(possid);
 		if(divTop == null) {
@@ -434,7 +439,6 @@ function() {
 					return;
 				} 
 				this.parentElement.parentElement.removeChild(this.parentElement);
-				
 				ms.currentMenuArray.splice(idx);
 			}
 		} ();
@@ -444,10 +448,7 @@ function() {
 		return divTop;
 	}
 	
-	var renderParentList = function () {
-		//parentCol>>currentCol>>descCol
-	}
-	
+
 	var renderDescriptionWindow = function(obj) {
 		//parentCol>>currentCol>>descCol
 		$(descCol).html("");
@@ -465,24 +466,101 @@ function() {
 		// div description
 		var divMenuDesc = document.createElement("div");
 		descCol.appendChild(divMenuDesc);
-		var button = new InputWithEditBox(obj.menuObject.menuDesc, divMenuDesc).onedit(
-				function () {
-					// TODO WORKING HERE NOW
+		// registering desc text with add power
+		new InputWithEditBox(obj.menuObject.menuDesc, divMenuDesc).onedit(
+				function (updatedText) {
+					obj.menuObject.menuDesc = updatedText;
+					renderCurrentList(obj.menuObject)
 				}
-				);
+		);
+		var addChildBuddonDiv = document.createElement("div");
+		$(addChildBuddonDiv).css("width", "100%");
+		descCol.appendChild(addChildBuddonDiv);
+		var addChildButton = document.createElement("button");
+		$(addChildButton).css("width", "100%");
+		$(addChildButton).text("Add Children");
+		addChildButton.onclick = function() {
+			// TODO currently Working
+			// if current Object is null it means
+			ms = obj.menuObject;
+			renderMotherObject();
+			renderCurrentList();
+		}
+		addChildBuddonDiv.appendChild(addChildButton);
 	}
+	$(parentCol).attr("valign", "top");
+	$(currentCol).attr("valign", "top");
+	$(descCol).attr("valign", "top");
+	
+	// will be build from ms.curMenuObj
+	var renderMotherObject = function () {
+		if(ms.parentObj == null) {
+			return;
+		}
+		$(parentCol).html("");
+		$(currentCol).html("");
+		$(descCol).html("");
+		
+		ms.parentObj.children.forEach(function(obj, index) {
 
-	var renderCurrentList = function (idx) {
+			var divTop = document.createElement("div");
+			parentCol.appendChild(divTop);
+			$(divTop).html("");
+			$(divTop).addClass("menu-holder");
+			divTop.menuObject = obj;
+			divTop.onclick = function() {
+					if(lastMotherSelectedDiv != null) {
+						$(lastMotherSelectedDiv).removeClass("menu-holder-selected");
+					}
+					$(this).addClass("menu-holder-selected");
+					lastMotherSelectedDiv = this;
+					ms = this.menuObject;
+					renderCurrentList();
+				};
+			// main window //
+			var divTemp = document.createElement("div");
+			divTop.appendChild(divTemp);
+			$(divTemp).css('float', 'left');
+
+			var ttl = "";
+			if(obj.menuDesc.trim() == "") {
+				ttl = obj.menuName		
+			} else {
+				ttl = obj.menuName + " [" + obj.menuDesc + "]";
+			}
+			$(divTemp).html(ttl);
+			$(divTemp).attr("title", obj.menuName);
+			$(divTemp).addClass("common-child");
+			divTop.appendChild(mm.clearBothDiv());
+			return divTop;
+		})
+	}
+	
+	// either all object or targeted object
+	var renderCurrentList = function (insObj, idx) {
 		//parentCol>>currentCol>>descCol
-		$(currentCol).attr("valign", "top");
-		if(idx == null) {
+		if(insObj == null) {
 			// reconstructing the shit;
 			$(currentCol).html("");
-			ms.currentMenuArray.forEach(function(obj, index) {
-				cd({"app": currentCol, "obj": obj, "index": index});
+			ms.children.forEach(function(obj, index) {
+				addMenuToCurrentList({"app": currentCol, "obj": obj, "index": index});
 			})
 		} else {
-			return cd({"app": currentCol, "obj": ms.currentMenuArray[idx], "index": idx});
+			return addMenuToCurrentList({"app": currentCol, "obj": insObj, "index": idx});
 		}
 	}
+	
+	
+	// will be called to sanitize json object before posting for saving purpose
+	removeCycle = function (mobj) {
+		  delete mobj.parentObj;
+		  mobj.children.forEach(function (obj) {
+		    removeCycle(obj);
+		  });
+		}
+
 })
+
+
+
+

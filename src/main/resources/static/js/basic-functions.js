@@ -1,10 +1,16 @@
 mm = new function () {
-	this.getDivObject = function (idobj) {
-		if(typeof idobj === "string") {
-			return document.getElementById(id);
+	this.getDivObject = function (idobj, create) {
+		
+		if(typeof idobj === "string" && document.getElementById(idobj) != null) {
+			return document.getElementById(idobj);
+		} else if(typeof idobj == "string" && create === true) {
+			var toRet = document.createElement("div");
+			toRet.id = idobj;
+			return toRet; 
 		} else if(typeof idobj === "object" && idobj.tagName == "DIV") {
 			return idobj;
 		}
+		 
 	}
 
 	this.clearBothDiv = function () {
