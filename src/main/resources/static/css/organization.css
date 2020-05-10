@@ -117,13 +117,14 @@ div.button-grand-child {
 }
 
 .menu-window-title, .menu-window-title-desc {
-	width: 33.33%;
+	width: 224px;
 	height: 50px;
 	line-height: 50px;
 	text-align: center;
 	font-size: small;
 	user-select:none;
 	outline:none;
+	max-width: 224px;
 }
 
 .menu-holder {

@@ -1,6 +1,5 @@
 package com.simple.mind.useracess.controllers;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -15,6 +14,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import com.google.common.base.Strings;
+import com.google.gson.Gson;
 import com.simple.mind.useracess.bean.Response;
 import com.simple.mind.useracess.models.MenuStructure;
 import com.simple.mind.useracess.models.Organization;
@@ -40,7 +40,7 @@ public class OrganizationController {
 	public ResponseEntity<Response<String>> update(String id, String orgName) {
 		Optional<Organization> orgOptional = orgRepo.findById(id);
 		if (orgOptional.isEmpty()) {
-			return ResponseEntity.ok(new Response<String>(false, "Item does not exists anymore", null));
+			return ResponseEntity.ok(Response.fail("Item does not exists anymore"));
 		}
 		Organization org = orgOptional.get();
 		org.setDeleted(false);
@@ -49,9 +49,9 @@ public class OrganizationController {
 			orgRepo.save(org);
 		} catch (IllegalArgumentException e) {
 			e.printStackTrace();
-			return ResponseEntity.ok(new Response<String>(false, "failed to update", null));
+			return ResponseEntity.ok(Response.fail("failed to update"));
 		}
-		return ResponseEntity.ok(new Response<String>(true, "Deleted", null));
+		return ResponseEntity.ok(Response.ok("Deleted"));
 	}
 
 	@PostMapping(value = "/org/add")
@@ -59,10 +59,10 @@ public class OrganizationController {
 			@RequestParam(required = true) String orgId, //
 			@RequestParam(required = true) String orgName) {
 		if (Strings.isNullOrEmpty(orgId) || Strings.isNullOrEmpty(orgName)) {
-			return ResponseEntity.ok(new Response<Organization>(false, "Empty Field", null));
+			return ResponseEntity.ok(Response.fail("Empty Field"));
 		}
 		if (orgRepo.findByOrganizationId(orgId) != null) {
-			return ResponseEntity.ok(new Response<Organization>(false, "Duplicate Entry", null));
+			return ResponseEntity.ok(Response.fail("Duplicate Entry"));
 		}
 		Organization org = new Organization();
 		org.setId(null);
@@ -70,16 +70,15 @@ public class OrganizationController {
 		org.setOrganizationName(orgName);
 		org.setMenuStructures(null);
 		orgRepo.insert(org);
-		return ResponseEntity.ok(new Response<Organization>(true, "Organization added", org));
+		return ResponseEntity.ok(Response.ok("Organization added", org));
 	}
 
 	@PostMapping(value = "/org/remove")
 	public ResponseEntity<Response<String>> remove( //
-			@RequestParam(required = true, name = "id") String id
-			) {
+			@RequestParam(required = true, name = "id") String id) {
 		Optional<Organization> orgOptional = orgRepo.findById(id);
 		if (orgOptional.isEmpty()) {
-			return ResponseEntity.ok(new Response<String>(false, "Item does not exists anymore", null));
+			return ResponseEntity.ok(Response.fail("Item does not exists anymore"));
 		}
 		Organization org = orgOptional.get();
 
@@ -88,9 +87,35 @@ public class OrganizationController {
 			orgRepo.save(org);
 		} catch (IllegalArgumentException e) {
 			e.printStackTrace();
-			return ResponseEntity.ok(new Response<String>(false, "Deleted", null));
+			return ResponseEntity.ok(Response.fail("Deleted"));
 		}
 
-		return ResponseEntity.ok(new Response<String>(true, "Deleted", null));
+		return ResponseEntity.ok(Response.ok("Deleted"));
+	}
+
+	@PostMapping(value = "/org/menu")
+	public ResponseEntity<Response<MenuStructure>> orgMenu(@RequestParam() String id) {
+		Optional<Organization> orgOpt = orgRepo.findById(id);
+		if (orgOpt.isEmpty() == true) {
+			return ResponseEntity.ok(Response.fail("Requested object not found"));
+		}
+		MenuStructure menu = orgOpt.get().getMenuStructures();
+		if(menu == null) {
+			menu = MenuStructure.getBase();
+		}
+		return ResponseEntity.ok(Response.ok(menu));
+	}
+
+	@PostMapping(value = "/org/menu/save")
+	public ResponseEntity<Response<MenuStructure>> orgMenuSave(@RequestParam() String id, @RequestParam() String menuStruct ) {
+		Optional<Organization> orgOpt = orgRepo.findById(id);
+		if (orgOpt.isEmpty() == true) {
+			return ResponseEntity.ok(Response.fail("Requested object not found"));
+		}
+		Gson gson = new Gson();
+		MenuStructure mnObj = gson.fromJson(menuStruct, MenuStructure.class);
+		orgOpt.get().setMenuStructures(mnObj);
+		orgRepo.save(orgOpt.get());
+		return ResponseEntity.ok(Response.ok(mnObj));
 	}
 }

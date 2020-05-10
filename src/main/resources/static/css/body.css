@@ -100,11 +100,9 @@ input[type=text].bad-input {
 
 .menu-descripntion {
 	display: block;
-	height: 30px;
-	line-height: 30px;
 	font-size: xx-small;
 	overflow: hidden;
-	
+	width: 220px;
 }
 
 
@@ -115,8 +113,6 @@ input[type=text].bad-input {
 	height: 15px;
 	width: 15px;
 	background: url(/images/edit.png) no-repeat;
-	margin-top: 7px;
-	margin-left: 5px;
 	cursor: pointer;
 }
 

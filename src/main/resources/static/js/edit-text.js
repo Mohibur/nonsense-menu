@@ -4,15 +4,20 @@ class InputWithEditBox {
 	parentDiv;
 	textWindow;
 	editButton;
-	constructor(innerText, div) {
-		this.innerText = innerText;
-		this.parentDiv = mm.getDivObject(div, true);
-		$(this.parentDiv).addClass("menu-descripntion");
+	caption;
+	constructor(data) { // {innerText, div, className, caption}
+		this.innerText = data.innerText;
+		this.parentDiv = mm.getDivObject(data.div);
+		this.caption = data.caption;
+		$(this.parentDiv).addClass(data.className==null?"":data.className);
+		// setting ends;
+
+		if(this.parentDiv==null) throw "Parent Div cannot be null";
 		$(this.parentDiv).html("");
 		this.textWindow = document.createElement("div");
 		this.renderSpan();
 		$(this.textWindow).css("float", "left");
-
+		$(this.textWindow).css("max-width", "230px");
 		this.editButton = document.createElement("div");
 		$(this.editButton).addClass("edit-box");
 		this.parentDiv.appendChild(this.textWindow);
@@ -22,9 +27,11 @@ class InputWithEditBox {
 
 	renderSpan() {
 		$(this.textWindow).html("");
-		var sp = document.createElement("span");
-		$(sp).text("Menu Desc: ");
-		this.textWindow.appendChild(sp);
+		if(this.caption != null && this.caption.trim() != "") {
+			var sp = document.createElement("span");
+			$(sp).text(this.caption);
+			this.textWindow.appendChild(sp);
+		}
 		var sp2 = document.createElement("span");
 		$(sp2).css("color", "red");
 		$(sp2).text(this.innerText);
@@ -84,12 +91,12 @@ class InputWithEditBox {
 				$(textArea).addClass("floating-text");
 				$(textArea).val(thisobj.innerText);
 				textArea.onkeyup = function (thisobj) {
-					return function(e) {
-						if(e.key === "Escape") {
+					return function(event) {
+						if(event.key === "Escape") {
 							document.body.removeChild(blockDiv);
 							return false;
-					    } else if(e.key === "Enter") {
-					    	thisobj.innerText = $(this).val();
+					    } else if(event.key === "Enter") {
+					    	thisobj.innerText = $(this).val().trim();
 					    	document.body.removeChild(blockDiv);
 					    	thisobj.renderSpan();
 					    	fnc(thisobj.innerText);

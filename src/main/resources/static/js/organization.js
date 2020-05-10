@@ -19,6 +19,28 @@ class MenuStructure {
 		this.isNew = true;	// null or false is not new
 		this.children = [];
 	}
+
+	cleanForDB() {
+		var menu = new MenuStructure();
+		menu.menuName = mm.nullToEmptyTrim(this.menuName);
+		menu.menuDesc = mm.nullToEmptyTrim(this.menuDesc);
+		menu.hasAdmin = this.hasAdmin;
+		delete menu.parentObj;
+		delete menu.isNew;
+		menu.children = [];
+		return menu;
+	}
+
+	static cleanForJS(mobj, prev) {
+		var ret = new MenuStructure();
+		ret.menuName = mm.nullToEmptyTrim(mobj.menuName);
+		ret.menuDesc = mm.nullToEmptyTrim(mobj.menuDesc);
+		ret.hasAdmin = mobj.hasAdmin;
+		ret.parentObj = prev;
+		ret.isNew = false;
+		ret.children = [];
+		return ret;
+	}
 }
 
 
@@ -26,7 +48,7 @@ class MenuStructure {
 // This action when clicked on left menu organization button
 $("#organizations").click(
 function() {
-	// in this case this object is #organizations 
+	// in this case this object is #organizations
 	if ($(this).attr("--data-process") === true) {
 		if (!confirm("There are changes; do you really want to lose chagnes?")) {
 			return;
@@ -36,8 +58,8 @@ function() {
 	var addEditWindow = document.createElement("div");
 	var addMenuWindow = document.createElement("table");
 	/*
-	* Adding left Organization window
-	*/
+	 * Adding left Organization window
+	 */
 	var	addOrganizationListPanel = function() {
 		var currentListPanel = document.createElement("div");
 		$(currentListPanel).addClass("current-list-panel");
@@ -59,7 +81,8 @@ function() {
 			false,	
 			{
 				onchange: function() {
-					// this object is the input box that we are adding in this function
+					// this object is the input box that we are adding in this
+					// function
 					this.value = this.value.toLocaleLowerCase();
 					var valid = validate_proper_id(this.value);
 					if( valid !== true ) {
@@ -68,7 +91,8 @@ function() {
 					}
 				},
 				onkeyup: function() {
-					// this object is the input box that we are adding in this function
+					// this object is the input box that we are adding in this
+					// function
 					$(this).removeClass("bad-input");
 				}
 			}
@@ -95,7 +119,7 @@ function() {
 
 	/*
 	 * Adding new Button for submit purpose
-	*/
+	 */
 	orgInputForm.addUpdateButton({// function params begins
 		parentId: "button_layer_1",
 		buttonId: "addUpdate",
@@ -140,7 +164,7 @@ function() {
 				});
 			}
 		}
-	}); //function ends: addUpdateButton
+	}); // function ends: addUpdateButton
 
 	// DELETE FUNCITON
 	var _delete_function = function() {
@@ -177,7 +201,7 @@ function() {
 			}
 		});
 	}
-	
+
 	orgInputForm.addUpdateButton({
 		parentId : "button_layer_1",
 		buttonId : "remove",
@@ -196,8 +220,8 @@ function() {
 	// This is to reset the last overridden color;
 	var lastNewInList = null;
 
-		// add each item to list
-	var addItemToList = function(jsonData, func, isNew) {
+	// add each organization item to list
+	var addOrganizationItemToList = function(jsonData, func, isNew) {
 		var dev = document.createElement("div");
 		dev.className = "organization-default";
 		$(dev).html(jsonData.organizationName);
@@ -228,6 +252,26 @@ function() {
 					"buttonId" : "addUpdate",
 					"text" : "Update"
 				});
+
+				$(parentCol).html("");
+				$(currentCol).html("");
+
+				$(descCol).html("");
+				$.ajax({
+					url: "/org/menu",
+					method: "post",
+					data: {id: this.jsonData.id},
+					success: function(response) {
+						window.fox = response;
+						if(response.success === true) {
+							msMother = ms = getProperMenuStructureForJS(response.data);
+							// TODO call the proper functions to render the proper object
+							renderCurrentList(); // render every piece
+						} else {
+							alert(response.message);
+						}
+					}
+				})
 			}
 		}
 
@@ -244,7 +288,8 @@ function() {
 		// Load the entire list to the window
 	var loadOrgList = function() {
 		$(addOrganizationListPanel).html("");
-		addItemToList(
+		// adding + button
+		addOrganizationItemToList(
 			{ "organizationName" : " + " },
 			function() {
 				orgInputForm.inputBoxes["id"].value = "";
@@ -265,8 +310,9 @@ function() {
 		$.ajax({
 			url : "/org/list",
 			success : function(jsonData) {
+				$(descCol).html("");
 				for ( var i in jsonData) {
-					addItemToList(jsonData[i]);
+					addOrganizationItemToList(jsonData[i]);
 				}
 			},
 			error : function(error) {
@@ -276,23 +322,24 @@ function() {
 
 	loadOrgList();
 
-	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	////////////////////////////////////////////////////////Play With Menus///////////////////////////////////////////////////////////////
-	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	// ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	// //////////////////////////////////////////////////////Play With
+	// Menus///////////////////////////////////////////////////////////////
+	// ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	// play with this now.
-	//var
+	// var
 	// this is current Object
 	var ms = new MenuStructure();
 	ms.parentObj = null; // by default
 	msMother = ms;
+	msMother.hasAdmin = true;
 	/**
-		this.children = [];
-	 **/
+	 * this.children = [];
+	 */
 	// if current Object is null it means
-	ms.curMenuObj = null;
-	ms.currentMenuArray = ms.motherMenuArray;
 
-	//addMenuWindow = document.createElement("table");
+
+	// addMenuWindow = document.createElement("table");
 	addMenuWindow.border = 0;
 	addMenuWindow.colSpacing = 0;
 	addMenuWindow.className = "addMenuWindow";
@@ -324,7 +371,7 @@ function() {
 	var parentCol = menuRow.insertCell(); 
 	$(parentCol).addClass("menu-td");
 	parentCol.align = "left";
-	
+
 	var currentCol = menuRow.insertCell();
 	$(currentCol).addClass("menu-td");
 	currentCol.align = "left";
@@ -332,6 +379,40 @@ function() {
 	var descCol = menuRow.insertCell();
 	$(descCol).addClass("menu-td");
 	descCol.align = "left";
+	
+	var saveMenuRow = addMenuWindow.insertRow()
+	var saveButton = document.createElement("button");
+	saveMenuRow.insertCell();
+	var saveMenuCell = saveMenuRow.insertCell();
+	saveMenuCell.appendChild(saveButton);
+	$(saveMenuCell).attr("align", "center");
+	$(saveButton).css("width", "100%");
+	$(saveButton).css("height", "40px");
+	saveMenuRow.insertCell();
+
+	$(saveButton).text("Save the menu");
+	saveButton.onclick = function() {
+		if(orgInputForm.inputBoxes["id"].value.trim() == "") {
+			alert("You must have to select an Organization first");
+			return;
+		}
+
+		if(!confirm("Are you sure you want to update this list")) {
+			return;
+		}
+		var menuStructureToSave = getProperMenuStructure(msMother);
+		$.ajax({
+			url: "/org/menu/save",
+			method: "post",
+			data: {
+				id: orgInputForm.inputBoxes["id"].value,
+				menuStruct: JSON.stringify(menuStructureToSave)
+			},
+			success: function (response) {
+				alert(response.message);
+			} 
+		});
+	}
 	
 	var menuMother = document.createElement("div");
 	var currentSelect = document.createElement("div");
@@ -345,7 +426,8 @@ function() {
 	menuInputForm.addInput("Menu Name","menu-name",false,	
 		{
 			onchange: function() {
-				// this object is the input box that we are adding in this function
+				// this object is the input box that we are adding in this
+				// function
 				this.value = this.value.toLocaleLowerCase();
 				var valid = validate_proper_id(this.value);
 				if( valid !== true ) {
@@ -354,7 +436,8 @@ function() {
 				}
 			},
 			onkeyup: function() {
-				// this object is the input box that we are adding in this function
+				// this object is the input box that we are adding in this
+				// function
 				$(this).removeClass("bad-input");
 			}
 		});
@@ -375,7 +458,6 @@ function() {
 					$(menuInputForm.inputBoxes["menu-name"]).addClass("bad-input");
 					return;
 				}
-				// TODO
 				var newMenu = new MenuStructure();
 				newMenu.menuName = menuInputForm.inputBoxes["menu-name"].value;
 				newMenu.menuDesc = menuInputForm.inputBoxes["menu-desc"].value;
@@ -388,8 +470,12 @@ function() {
 			}
 		}
 	});
+	
+// //////////////////////////////////////
 	var lastMotherSelectedDiv = null;
 	var lastSelectedDiv = null;
+// //////////////////////////////////////
+	
 	// add an individual menu to currentList;
 	function addMenuToCurrentList(data) {
 		var possid = "menu_construct_" + data.obj.menuName
@@ -401,16 +487,17 @@ function() {
 		$(divTop).html("");
 		$(divTop).addClass("menu-holder");
 		divTop.menuObject = data.obj;
-		divTop.onclick = function() {
+
+		// main window //
+		var divTemp = document.createElement("div");
+		divTemp.onclick = function() {
 			if(lastSelectedDiv != null) {
 				$(lastSelectedDiv).removeClass("menu-holder-selected");
 			}
-			$(this).addClass("menu-holder-selected");
-			lastSelectedDiv = this;
-			renderDescriptionWindow(this);
+			$(this.parentElement).addClass("menu-holder-selected");
+			lastSelectedDiv = this.parentElement;
+			renderDescriptionWindow(this.parentElement);
 		};
-		// main window //
-		var divTemp = document.createElement("div");
 		divTop.appendChild(divTemp);
 		$(divTemp).css('float', 'left');
 
@@ -427,65 +514,109 @@ function() {
 		} else {
 			$(divTemp).addClass(data.clsName);
 		}
-		
-		
 		// cross button //
 		var divClose = document.createElement("div");
 		divTop.appendChild(divClose);
 		$(divClose).addClass("close-menu");
 		divClose.onclick = function(idx) {
-			return function() {
+			return function(event) {
 				if(!confirm("confirm to remove")) {
 					return;
-				} 
+				}
+				if(lastSelectedDiv === ms.children[idx]) {
+					lastSelectedDiv = null;
+				}
 				this.parentElement.parentElement.removeChild(this.parentElement);
-				ms.currentMenuArray.splice(idx);
+				var toDel = ms.children[idx];
+				ms.children.splice(idx);
+				descCol.innerHTML = "";
+				delete(toDel);
+				toDel = undefined;
 			}
-		} ();
+		} (data.index);
 		divTop.appendChild(mm.clearBothDiv());
 		
 		data.app.appendChild(divTop);
 		return divTop;
 	}
-	
 
-	var renderDescriptionWindow = function(obj) {
-		//parentCol>>currentCol>>descCol
+	var renderDescriptionWindow = function(divObj) {
+		// parentCol>>currentCol>>descCol
 		$(descCol).html("");
-		var divMenuName = document.createElement("div");
-		$(divMenuName).addClass("menu-descripntion");
-		var addSpan = function(text) {
+		var addToDescCol= function(type) {
+			var o = document.createElement(type);
+			descCol.appendChild(o);
+			return o;
+		}
+		var addSpan = function(text, par) {
 			var sp = document.createElement("span");
 			$(sp).text(text);
-			divMenuName.appendChild(sp);
+			par.appendChild(sp);
 			return sp;
 		}
-		addSpan("Menu Name:");
-		$(addSpan(obj.menuObject.menuName)).css("color", "red");
-		descCol.appendChild(divMenuName);
+		var divMenuName = addToDescCol("div");
+		$(divMenuName).addClass("menu-descripntion");
+		
+		addSpan("Menu Name: ", divMenuName);
+		$(addSpan(divObj.menuObject.menuName, divMenuName)).css("color", "red");
 		// div description
-		var divMenuDesc = document.createElement("div");
-		descCol.appendChild(divMenuDesc);
+		var divMenuDesc = addToDescCol("div");
 		// registering desc text with add power
-		new InputWithEditBox(obj.menuObject.menuDesc, divMenuDesc).onedit(
+		new InputWithEditBox({
+			innerText:divObj.menuObject.menuDesc, 
+			div: divMenuDesc,
+			className: "menu-descripntion",
+			caption: "Menu Desc: "}).onedit(
 				function (updatedText) {
-					obj.menuObject.menuDesc = updatedText;
-					renderCurrentList(obj.menuObject)
+					divObj.menuObject.menuDesc = updatedText;
+					renderCurrentList(divObj.menuObject)
 				}
 		);
-		var addChildBuddonDiv = document.createElement("div");
+		var childCountDiv = addToDescCol("div");
+		childCountDiv.className = "menu-descripntion";
+		addSpan("Number of Children: ", childCountDiv);
+		$(addSpan(divObj.menuObject.children.length, childCountDiv)).css("color", "red");
+
+		if(divObj.menuObject.children.length != 0) {
+			var hasAdminDiv = addToDescCol("div");
+			hasAdminDiv.title = "Only menu with children can have admin";
+			var lab = document.createElement("label");
+			$(lab).text("admin");
+			lab.htmlFor = "has-admin-checkbox-id";
+			hasAdminDiv.appendChild(lab);
+			var chk = document.createElement("input");
+			
+			chk.type="checkbox";
+			if(divObj.menuObject.hasAdmin === true) {
+				$(chk).prop("checked", true);
+			} else {
+				$(chk).prop("checked", false);
+			}
+			chk.id = lab.htmlFor;
+			chk.onclick = function(targetDivObject) {
+				return function() {
+					if($(this).prop("checked") == true) {
+						targetDivObject.menuObject.hasAdmin = true;
+					} else if($(this).prop("checked") == false) {
+						targetDivObject.menuObject.hasAdmin = true;
+					}
+				}
+			}(divObj);
+			hasAdminDiv.appendChild(chk);
+		}
+		
+		var addChildBuddonDiv = addToDescCol("div");
 		$(addChildBuddonDiv).css("width", "100%");
-		descCol.appendChild(addChildBuddonDiv);
 		var addChildButton = document.createElement("button");
 		$(addChildButton).css("width", "100%");
 		$(addChildButton).text("Add Children");
-		addChildButton.onclick = function() {
-			// TODO currently Working
-			// if current Object is null it means
-			ms = obj.menuObject;
-			renderMotherObject();
-			renderCurrentList();
-		}
+		addChildButton.onclick = function(targetDivObject) {
+			return function() {
+				ms = targetDivObject.menuObject;
+				renderMotherObject();
+				renderCurrentList();
+			}
+		}(divObj);
 		addChildBuddonDiv.appendChild(addChildButton);
 	}
 	$(parentCol).attr("valign", "top");
@@ -494,24 +625,27 @@ function() {
 	
 	// will be build from ms.curMenuObj
 	var renderMotherObject = function () {
+		$(parentCol).html("");
 		if(ms.parentObj == null) {
 			return;
 		}
-		$(parentCol).html("");
 		$(currentCol).html("");
 		$(descCol).html("");
-		
 		ms.parentObj.children.forEach(function(obj, index) {
-
 			var divTop = document.createElement("div");
 			parentCol.appendChild(divTop);
 			$(divTop).html("");
 			$(divTop).addClass("menu-holder");
+			if(obj === ms) {
+				$(divTop).addClass("menu-holder-selected");
+				lastMotherSelectedDiv = divTop;
+			}
 			divTop.menuObject = obj;
 			divTop.onclick = function() {
 					if(lastMotherSelectedDiv != null) {
 						$(lastMotherSelectedDiv).removeClass("menu-holder-selected");
 					}
+					$(descCol).html();
 					$(this).addClass("menu-holder-selected");
 					lastMotherSelectedDiv = this;
 					ms = this.menuObject;
@@ -532,13 +666,22 @@ function() {
 			$(divTemp).attr("title", obj.menuName);
 			$(divTemp).addClass("common-child");
 			divTop.appendChild(mm.clearBothDiv());
-			return divTop;
 		})
+		if(ms.parentObj != null) {
+			var buttonToPrev = document.createElement("button");
+			$(buttonToPrev).html("Open Grand Parent");
+			parentCol.appendChild(buttonToPrev);
+			buttonToPrev.onclick = function() {
+				ms = ms.parentObj;
+				renderMotherObject();
+				renderCurrentList();
+			}
+		}
 	}
 	
 	// either all object or targeted object
 	var renderCurrentList = function (insObj, idx) {
-		//parentCol>>currentCol>>descCol
+		// parentCol>>currentCol>>descCol
 		if(insObj == null) {
 			// reconstructing the shit;
 			$(currentCol).html("");
@@ -546,21 +689,28 @@ function() {
 				addMenuToCurrentList({"app": currentCol, "obj": obj, "index": index});
 			})
 		} else {
+			
 			return addMenuToCurrentList({"app": currentCol, "obj": insObj, "index": idx});
 		}
 	}
-	
-	
+
 	// will be called to sanitize json object before posting for saving purpose
-	removeCycle = function (mobj) {
-		  delete mobj.parentObj;
-		  mobj.children.forEach(function (obj) {
-		    removeCycle(obj);
-		  });
+	getProperMenuStructure = function (mobj) {
+		var menu = mobj.cleanForDB();
+		mobj.children.forEach(function (obj) {
+			menu.children.push(getProperMenuStructure(obj));
+		});
+		return menu;
+	}
+	
+	getProperMenuStructureForJS = function (jsonResMenu, mobj) {
+		if(typeof mobj === "undefined") {
+			mobj = null;
 		}
-
+		var menu = MenuStructure.cleanForJS(jsonResMenu, mobj);
+		jsonResMenu.children.forEach(function (obj) {
+			menu.children.push(getProperMenuStructureForJS(obj, menu));
+		});
+		return menu;
+	}
 })
-
-
-
-

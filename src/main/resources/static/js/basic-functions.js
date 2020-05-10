@@ -156,6 +156,11 @@ mm = new function () {
 		return new _buildInputForm(idobj);
 	}
 
+	this.nullToEmptyTrim = function(st) {
+		xfox = st;
+		console.log(st);
+		return st === null || typeof st == "undefined" ? "" : st.trim(); 
+	}
 }
 
 
